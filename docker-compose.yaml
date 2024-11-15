@@ -1,0 +1,58 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:latest
+    container_name: nextcloud_db
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=rayandb
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - ./db_data:/var/lib/mysql
+
+  nextcloud:
+    image: nextcloud:latest
+    container_name: nextcloud
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nextcloud_data:/var/www/html
+    depends_on:
+      - db
+      - onlyoffice
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=rayandb
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+
+  onlyoffice:
+    image: onlyoffice/documentserver:latest
+    container_name: onlyoffice
+    restart: always
+    ports:
+      - "8080:80"
+        # volumes:
+        #- ./onlyoffice_data:/var
+    environment:
+      - JWT_ENABLED=true
+      - JWT_SECRET=${JWT_SECRET}
+  collabora:
+    image: collabora/code
+    restart: always
+    container_name: Collabora
+    ports:
+      - 9980:9980
+    environment:
+      - domain="192.168.10.13"
+      - username=${COLLAB_USER}
+      - password=${COLLAB_PASS}
+volumes:
+  db_data:
+          # onlyoffice_data:
+  nextcloud_data:
+
